@@ -1,0 +1,17 @@
+stages:
+- backup
+- restore
+ 
+backup_job:
+  stage: backup
+  script:
+    - /usr/bin/python3 ./transfer.py backup
+  tags:
+    - python3
+ 
+restore_job:
+  stage: restore
+  script:
+    - /usr/bin/python3 ./transfer.py restore
+  tags:
+    - python3
