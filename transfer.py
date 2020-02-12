@@ -29,13 +29,17 @@ def main(method):
         if templates:
             for template in templates:
                 template_data = kibana.get_s_template_body(template)
-                transferer.common.save_to_file(local_path, template, template_data, 'search')
+                transferer.common.save_to_file(local_path, template, template_data, 'searches')
+        else:
+            print('No searches to backup')
 
         dashes = kibana.search_dashboards()
         if dashes:
             for dashboard in dashes:
                 dashboard_data = kibana.get_dashboard_body(dashboard)
-                transferer.common.save_to_file(local_path, dashboard, dashboard_data, 'dashboard')
+                transferer.common.save_to_file(local_path, dashboard, dashboard_data, 'dashboards')
+        else:
+            print('No dashboards to backup')
 
         git_changed = repo.git_status()
 
@@ -48,15 +52,21 @@ def main(method):
     elif method == 'restore':
         kibana = transferer.kibana.Kibana(elastic_url)
 
-        templates = transferer.common.list_dir(local_path + '/' + 'searches')
-        for tmplt in templates:
-            data = transferer.common.read_from_file(local_path, tmplt, 'searches')
-            kibana.put_s_template(tmplt, data)
+        if os.path.isdir('{}/searches'.format(local_path)):
+            templates = transferer.common.list_dir('{}/searches'.format(local_path))
+            for tmplt in templates:
+                data = transferer.common.read_from_file(local_path, tmplt, 'searches')
+                kibana.put_s_template(tmplt, data)
+        else:
+            print('No searches to restore')
 
-        dashboards = transferer.common.list_dir(local_path + '/' + 'dashboards')
-        for dshbrd in dashboards:
-            data = transferer.common.read_from_file(local_path, dshbrd, 'dashboards')
-            kibana.put_dashboard(dshbrd, data)
+        if os.path.isdir('{}/dashboards'.format(local_path)):
+            dashboards = transferer.common.list_dir('{}/dashboards'.format(local_path))
+            for dshbrd in dashboards:
+                data = transferer.common.read_from_file(local_path, dshbrd, 'dashboards')
+                kibana.put_dashboard(dshbrd, data)
+        else:
+            print('No dashboards to restore')
 
 if __name__ == '__main__':
     main(sys.argv[1])

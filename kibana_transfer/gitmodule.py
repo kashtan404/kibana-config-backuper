@@ -42,9 +42,9 @@ class Git(object):
 
     def __git_add_origin(self):
 
-        """ 'git remote add origin <http_url>' command """
+        """ 'git remote add origin <url>' command """
 
-        cmd = 'git remote add origin ' + self.__repo_url
+        cmd = 'git remote add origin {}'.format(self.__repo_url)
         self.__execute(cmd, self.__repo_path)
         return self
 
@@ -59,7 +59,7 @@ class Git(object):
     def git_add(self):
 
         """ 'git add -A' command
-            add all to solve our work """
+            add all to solve our job """
 
         cmd = 'git add -A'
         self.__execute(cmd, self.__repo_path)
@@ -69,7 +69,7 @@ class Git(object):
 
         """ 'git commit -am "<comment>"' command """
 
-        cmd = 'git commit -am "%s"' % commitmessage
+        cmd = 'git commit -am "{}"'.format(commitmessage)
         self.__execute(cmd, self.__repo_path)
         return self
 

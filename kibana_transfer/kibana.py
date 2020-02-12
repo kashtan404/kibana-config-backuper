@@ -86,7 +86,7 @@ class Kibana(object):
 
         """ find search templates """
 
-        s_template_url = self.__url + '/.kibana/search/_search?pretty&filter_path=hits.hits._id'
+        s_template_url = '{}/.kibana/search/_search?pretty&filter_path=hits.hits._id'.format(self.__url)
         return self.__get_request(s_template_url)
 
     @to_list
@@ -95,7 +95,7 @@ class Kibana(object):
 
         """ find dashboards """
 
-        dashboards_url = self.__url + '/.kibana/dashboard/_search?pretty&filter_path=hits.hits._id'
+        dashboards_url = '{}/.kibana/dashboard/_search?pretty&filter_path=hits.hits._id'.format(self.__url)
         return self.__get_request(dashboards_url)
 
     @to_plaintext
@@ -103,7 +103,7 @@ class Kibana(object):
 
         """ get dashboard body """
 
-        dashboard_url = self.__url + '/.kibana/dashboard/' + dashboard_name + '?filter_path=_source'
+        dashboard_url = '{}/.kibana/dashboard/{}?filter_path=_source'.format(self.__url, dashboard_name)
         return self.__get_request(dashboard_url)
 
     @to_plaintext
@@ -111,7 +111,7 @@ class Kibana(object):
 
         """ get search template body """
 
-        template_url = self.__url + '/.kibana/search/' + template_name + '?filter_path=_source'
+        template_url = '{}/.kibana/search/{}?filter_path=_source'.format(self.__url, template_name)
         return self.__get_request(template_url)
 
     @to_json
@@ -119,7 +119,7 @@ class Kibana(object):
 
         """ put dashboard body """
 
-        dashboards_url = self.__url + '/.kibana/dashboard/' + dashboard_name
+        dashboards_url = '{}/.kibana/dashboard/{}'.format(self.__url, dashboard_name)
         return self.__put_request(dashboards_url, dashboard_body)
 
     @to_json
@@ -127,5 +127,5 @@ class Kibana(object):
 
         """ put search template body """
 
-        template_url = self.__url + '/.kibana/search/' + template_name
+        template_url = '{}/.kibana/search/{}'.format(self.__url, template_name)
         return self.__put_request(template_url, template_body)
