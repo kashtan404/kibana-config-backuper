@@ -8,14 +8,17 @@ email: al.kashtan.ex@gmail.com
 
 import kibana_transfer as transferer
 import sys
+import os
+
+git_repo = os.environ.get('GIT_REPO')
+elastic_url = os.environ.get('ELASTICSEARCH_URL')
 
 
 def main(method):
-    elastic_url, elastic_r_url, gitlab_token, gitlab_repo, local_path = transferer.common.conf()
-
+    local_path = '/tmp/kibana'
     transferer.common.mkdir(local_path)
 
-    repo = transferer.git.Git(local_path, gitlab_repo, gitlab_token, ssl_verify=False)
+    repo = transferer.git.Git(local_path, git_repo)
     repo.gitrepo()
     repo.git_pull()
 
@@ -38,12 +41,12 @@ def main(method):
 
         if git_changed:
             repo.git_add()
-            repo.git_commit('backuped')
+            repo.git_commit('autobackup')
             repo.git_push()
         else:
             print('Nothing to backup')
     elif method == 'restore':
-        kibana = transferer.kibana.Kibana(elastic_r_url)
+        kibana = transferer.kibana.Kibana(elastic_url)
 
         templates = transferer.common.list_dir(local_path + '/' + 'searches')
         for tmplt in templates:

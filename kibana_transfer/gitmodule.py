@@ -10,11 +10,9 @@ import subprocess
 
 class Git(object):
 
-    def __init__(self, repo_path, repo_url, token, ssl_verify=True):
+    def __init__(self, repo_path, repo_url):
         self.__repo_path = repo_path
         self.__repo_url = repo_url
-        self.__repo_token = token
-        self.__ssl_verify = ssl_verify
 
     @staticmethod
     def __execute(cmd, repodir):
@@ -30,10 +28,7 @@ class Git(object):
 
         """ init and fetch repo """
 
-        self.__make_origin_url(self.__repo_url)
         self.__git_init()
-        if not self.__ssl_verify:
-            self.__git_ssl_verify()
         self.__git_add_origin()
         self.__git_fetch()
 
@@ -45,19 +40,11 @@ class Git(object):
         self.__execute(cmd, self.__repo_path)
         return self
 
-    def __git_ssl_verify(self):
-
-        """ 'git config http.sslVerify false' command """
-
-        cmd = 'git config http.sslVerify false'
-        self.__execute(cmd, self.__repo_path)
-        return self
-
     def __git_add_origin(self):
 
         """ 'git remote add origin <http_url>' command """
 
-        cmd = 'git remote add origin ' + self.__origin_url
+        cmd = 'git remote add origin ' + self.__repo_url
         self.__execute(cmd, self.__repo_path)
         return self
 
@@ -69,28 +56,12 @@ class Git(object):
         self.__execute(cmd, self.__repo_path)
         return self
 
-    def __make_origin_url(self, url):
-
-        """ generate http_url with token access """
-
-        splited_url = url.split('//')
-        self.__origin_url = splited_url[0] + '//gitlab-ci-token:' + self.__repo_token + '@' + splited_url[1]
-        return self
-
     def git_add(self):
 
         """ 'git add -A' command
             add all to solve our work """
 
         cmd = 'git add -A'
-        self.__execute(cmd, self.__repo_path)
-        return self
-
-    def git_rm(self, filepath):
-
-        """ 'git rm <file_path>' command """
-
-        cmd = 'git rm ' + filepath
         self.__execute(cmd, self.__repo_path)
         return self
 

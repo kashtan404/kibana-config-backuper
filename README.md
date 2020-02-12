@@ -22,10 +22,9 @@ Options:
   - backup (for backup configuration)
   - restore (for restore configucation)
 
-transfer.conf - config file
-
-
-Also: you can use gitlab-ci with schedulled pipelines
+env variables:
+  - GIT_REPO
+  - ELASTICSEARCH_URL
 
 
 Script work-line
