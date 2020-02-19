@@ -1,13 +1,14 @@
 kibana-config-transfer
 =========
 
-Small package for backup/restore kibana config (search_templates/dashboards)
+Small package for backup/restore kibana config (visualization/search/dashboards)
 
 
 Requirements
 ------------
 
 Python 3 or higher
+Kibana 6 or higher
 
 python libs:
   - requests
@@ -24,7 +25,7 @@ Options:
 
 env variables:
   - GIT_REPO
-  - ELASTICSEARCH_URL
+  - KIBANA_URL
 
 
 Script work-line
@@ -39,7 +40,7 @@ backup:
 
 restore:
 1) Read data from local files
-2) Put to elasticsearch
+2) Post to kibana
 
 
 License

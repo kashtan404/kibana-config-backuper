@@ -18,47 +18,29 @@ def to_json(func):
     return wrapper
 
 
-def to_plaintext(func):
-
-    """ convert responce content to raw text """
-
-    def wrapper(self, *args, **kwargs):
-        """ some replacements to hold elasticsearch format """
-        source = func(self, *args, **kwargs).text
-        result = source.replace('{"_source":', '')[:-1].replace('\\\\', '\\')
-        return result
-    return wrapper
-
-
 def to_list(func):
 
-    """ convert responce content (/_search/) to list of names """
+    """ convert responce content (/saved_objects/) to list of objects """
 
     def wrapper(self, *args, **kwargs):
-        source = func(self, *args, **kwargs)['hits']['hits']
+        source = func(self, *args, **kwargs)['saved_objects']
         result = []
         for i in source:
-            result.append(i['_id'])
+            result.append(i)
         return result
     return wrapper
 
 
 class Kibana(object):
 
-    def __init__(self, url, **kwargs):
+    def __init__(self, url):
         self.__url = url
-        if not kwargs:
-            self.__usr = ''
-            self.__pwd = ''
-        else:
-            self.__usr = kwargs['user']
-            self.__pwd = kwargs['password']
 
     @staticmethod
     def __get_request(url):
-    
+
         """ http get request """
-    
+
         result = ''
         try:
             result = requests.get(url)
@@ -68,13 +50,13 @@ class Kibana(object):
         return result
 
     @staticmethod
-    def __put_request(url, data):
-    
-        """ http put request """
-    
+    def __post_request(url, data):
+
+        """ http post request """
+
         result = ''
         try:
-            result = requests.put(url, data=data, headers={'Content-Type': 'application/json'})
+            result = requests.post(url, data=data, headers={'Content-Type': 'application/json', 'kbn-xsrf': 'true'})
         except Exception as e:
             print(e)
             quit(2)
@@ -82,50 +64,24 @@ class Kibana(object):
 
     @to_list
     @to_json
-    def search_s_template(self):
+    def find_templates(self, object_type):
 
-        """ find search templates """
+        """ find template """
 
-        s_template_url = '{}/.kibana/search/_search?pretty&filter_path=hits.hits._id'.format(self.__url)
-        return self.__get_request(s_template_url)
+        url = '{}/api/saved_objects/{}'.format(self.__url, object_type)
+        return self.__get_request(url)
 
-    @to_list
-    @to_json
-    def search_dashboards(self):
+    def convert_body(self, body):
 
-        """ find dashboards """
+        """ convert template body """
 
-        dashboards_url = '{}/.kibana/dashboard/_search?pretty&filter_path=hits.hits._id'.format(self.__url)
-        return self.__get_request(dashboards_url)
-
-    @to_plaintext
-    def get_dashboard_body(self, dashboard_name):
-
-        """ get dashboard body """
-
-        dashboard_url = '{}/.kibana/dashboard/{}?filter_path=_source'.format(self.__url, dashboard_name)
-        return self.__get_request(dashboard_url)
-
-    @to_plaintext
-    def get_s_template_body(self, template_name):
-
-        """ get search template body """
-
-        template_url = '{}/.kibana/search/{}?filter_path=_source'.format(self.__url, template_name)
-        return self.__get_request(template_url)
+        converted_body = str(body).replace("False", "false").replace("True", "true").replace("\"","\\\"").replace("\'", "\"")
+        return converted_body
 
     @to_json
-    def put_dashboard(self, dashboard_name, dashboard_body):
+    def put_template(self, object_type, object_id, body):
 
-        """ put dashboard body """
+        """ put template body """
 
-        dashboards_url = '{}/.kibana/dashboard/{}'.format(self.__url, dashboard_name)
-        return self.__put_request(dashboards_url, dashboard_body)
-
-    @to_json
-    def put_s_template(self, template_name, template_body):
-
-        """ put search template body """
-
-        template_url = '{}/.kibana/search/{}'.format(self.__url, template_name)
-        return self.__put_request(template_url, template_body)
+        url = '{}/api/saved_objects/{}/{}?overwrite=true'.format(self.__url, object_type, object_id)
+        return self.__post_request(url, body)

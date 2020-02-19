@@ -11,7 +11,8 @@ import sys
 import os
 
 git_repo = os.environ.get('GIT_REPO')
-elastic_url = os.environ.get('ELASTICSEARCH_URL')
+kibana_url = os.environ.get('KIBANA_URL')
+types = ['search', 'dashboard', 'visualization']
 
 
 def main(method):
@@ -23,23 +24,18 @@ def main(method):
     repo.git_pull()
 
     if method == 'backup':
-        kibana = transferer.kibana.Kibana(elastic_url)
+        kibana = transferer.kibana.Kibana(kibana_url)
 
-        templates = kibana.search_s_template()
-        if templates:
-            for template in templates:
-                template_data = kibana.get_s_template_body(template)
-                transferer.common.save_to_file(local_path, template, template_data, 'searches')
-        else:
-            print('No searches to backup')
-
-        dashes = kibana.search_dashboards()
-        if dashes:
-            for dashboard in dashes:
-                dashboard_data = kibana.get_dashboard_body(dashboard)
-                transferer.common.save_to_file(local_path, dashboard, dashboard_data, 'dashboards')
-        else:
-            print('No dashboards to backup')
+        for object_type in types:
+            objects = kibana.find_templates(object_type)
+            if objects:
+                for obj in objects:
+                    obj_data = kibana.convert_body(obj['attributes'])
+                    backup_body = '{"attributes":' + obj_data + '}'
+                    transferer.common.save_to_file(local_path, obj['id'], backup_body, object_type)
+                    print('{} {} with id {} - saved.'.format(object_type, obj['attributes']['title'], obj['id']))
+            else:
+                print('No {} to backup'.format(object_type))
 
         git_changed = repo.git_status()
 
@@ -50,23 +46,17 @@ def main(method):
         else:
             print('Nothing to backup')
     elif method == 'restore':
-        kibana = transferer.kibana.Kibana(elastic_url)
+        kibana = transferer.kibana.Kibana(kibana_url)
 
-        if os.path.isdir('{}/searches'.format(local_path)):
-            templates = transferer.common.list_dir('{}/searches'.format(local_path))
-            for tmplt in templates:
-                data = transferer.common.read_from_file(local_path, tmplt, 'searches')
-                kibana.put_s_template(tmplt, data)
-        else:
-            print('No searches to restore')
-
-        if os.path.isdir('{}/dashboards'.format(local_path)):
-            dashboards = transferer.common.list_dir('{}/dashboards'.format(local_path))
-            for dshbrd in dashboards:
-                data = transferer.common.read_from_file(local_path, dshbrd, 'dashboards')
-                kibana.put_dashboard(dshbrd, data)
-        else:
-            print('No dashboards to restore')
+        for object_type in types:
+            if os.path.isdir('{}/{}'.format(local_path, object_type)):
+                objects = transferer.common.list_dir('{}/{}'.format(local_path, object_type))
+                for obj in objects:
+                    data = transferer.common.read_from_file(local_path, obj, object_type)
+                    kibana.put_template(object_type, obj, data)
+                    print('{} with id {} - restored.'.format(object_type, obj))
+            else:
+                print('No {} to restore'.format(object_type))
 
 if __name__ == '__main__':
     main(sys.argv[1])
