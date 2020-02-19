@@ -26,6 +26,7 @@ Options:
 env variables:
   - GIT_REPO
   - KIBANA_URL
+  - KIBANA_BACKUP_PREFIX (optional parameter. If defined, will backup only objects which includes prefix)
 
 
 Script work-line

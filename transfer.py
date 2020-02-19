@@ -12,6 +12,11 @@ import os
 
 git_repo = os.environ.get('GIT_REPO')
 kibana_url = os.environ.get('KIBANA_URL')
+if os.environ.get('KIBANA_BACKUP_PREFIX'):
+    prefix = os.environ.get('KIBANA_BACKUP_PREFIX')
+else:
+    prefix = ''
+
 types = ['search', 'dashboard', 'visualization']
 
 
@@ -30,10 +35,11 @@ def main(method):
             objects = kibana.find_templates(object_type)
             if objects:
                 for obj in objects:
-                    obj_data = kibana.convert_body(obj['attributes'])
-                    backup_body = '{"attributes":' + obj_data + '}'
-                    transferer.common.save_to_file(local_path, obj['id'], backup_body, object_type)
-                    print('{} {} with id {} - saved.'.format(object_type, obj['attributes']['title'], obj['id']))
+                    if prefix in obj['attributes']['title']:
+                        obj_data = kibana.convert_body(obj['attributes'])
+                        backup_body = '{"attributes":' + obj_data + '}'
+                        transferer.common.save_to_file(local_path, obj['id'], backup_body, object_type)
+                        print('{} {} with id {} - saved to local file'.format(object_type, obj['attributes']['title'], obj['id']))
             else:
                 print('No {} to backup'.format(object_type))
 
