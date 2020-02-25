@@ -17,7 +17,7 @@ if os.environ.get('KIBANA_BACKUP_PREFIX'):
 else:
     prefix = ''
 
-types = ['search', 'dashboard', 'visualization']
+types = ['search', 'dashboard', 'visualization', 'index-pattern']
 
 
 def main(method):
@@ -35,7 +35,7 @@ def main(method):
             objects = kibana.find_templates(object_type)
             if objects:
                 for obj in objects:
-                    if prefix in obj['attributes']['title']:
+                    if prefix in obj['attributes']['title'] or obj['type'] == 'index-pattern':
                         obj_data = kibana.convert_body(obj['attributes'])
                         backup_body = '{"attributes":' + obj_data + '}'
                         transferer.common.save_to_file(local_path, obj['id'], backup_body, object_type)
