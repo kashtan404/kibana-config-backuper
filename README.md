@@ -1,17 +1,25 @@
 kibana-config-transfer
 =========
 
-Small package for backup/restore kibana config (visualization/search/dashboards)
+Small package for backup/restore kibana config (visualization/search/dashboards/index-pattern)
 
 
 Requirements
 ------------
 
 Python 3 or higher
-Kibana 6 or higher
 
 python libs:
   - requests
+
+
+Compability
+------------
+| Kibana version | Backuper tool version |
+| --- | --- |
+| 4.* | 0.0.2 |
+| 6.* | 0.0.5 |
+| 7.6+ | 0.0.6 |
 
 
 Usage
@@ -25,6 +33,7 @@ Options:
 
 env variables:
   - GIT_REPO
+  - GIT_BRANCH (for backup/restore. default: master)
   - KIBANA_URL
   - KIBANA_BACKUP_PREFIX (optional parameter. If defined, will backup only objects which includes prefix)
 

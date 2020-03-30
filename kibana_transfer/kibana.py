@@ -68,7 +68,7 @@ class Kibana(object):
 
         """ find template """
 
-        url = '{}/api/saved_objects/{}'.format(self.__url, object_type)
+        url = '{}/api/saved_objects/_find?type={}&search_fields=type'.format(self.__url, object_type)
         return self.__get_request(url)
 
     def convert_body(self, body):

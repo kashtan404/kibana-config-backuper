@@ -50,9 +50,9 @@ class Git(object):
 
     def __git_fetch(self):
 
-        """ 'git fetch' command """
+        """ 'git fetch origin' command """
 
-        cmd = 'git fetch'
+        cmd = 'git fetch origin'
         self.__execute(cmd, self.__repo_path)
         return self
 
@@ -73,21 +73,25 @@ class Git(object):
         self.__execute(cmd, self.__repo_path)
         return self
 
-    def git_push(self):
+    def git_push(self, git_branch):
 
         """ 'git push origin refs/heads/master:refs/heads/master' command
             i use master branch for this, but you can change for what you want """
 
-        cmd = 'git push origin refs/heads/master:refs/heads/master'
+        if not git_branch:
+            git_branch = 'refs/heads/master:refs/heads/master'
+        cmd = 'git push origin {}'.format(git_branch)
         self.__execute(cmd, self.__repo_path)
         return self
 
-    def git_pull(self):
+    def git_pull(self, git_branch):
 
-        """ 'git pull origin master' command
+        """ 'git pull origin <branch>' command
             same as git_push() """
 
-        cmd = 'git pull origin master'
+        if not git_branch:
+            git_branch = 'master'
+        cmd = 'git pull origin {}'.format(git_branch)
         self.__execute(cmd, self.__repo_path)
         return self
 
@@ -101,3 +105,11 @@ class Git(object):
         if 'nothing to commit' in str(out):
             return False
         return True
+
+    def git_checkout(self, git_branch):
+
+        """ 'git checkout -b <branch>' command """
+
+        cmd = 'git checkout -b {}'.format(git_branch)
+        self.__execute(cmd, self.__repo_path)
+        return self
